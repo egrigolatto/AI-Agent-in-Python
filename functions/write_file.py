@@ -24,3 +24,26 @@ def write_file(working_directory: str, file_path: str, content: str) -> str:
         return f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
     except (OSError, TypeError, ValueError) as error:
         return f"Error: {error}"
+
+
+schema_write_file = {
+    "type": "function",
+    "function": {
+        "name": "write_file",
+        "description": "Writes or overwrites a file relative to the working directory, creating parent directories as needed.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Relative path of the file to write.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Text content to write to the file.",
+                },
+            },
+            "required": ["file_path", "content"],
+        },
+    },
+}

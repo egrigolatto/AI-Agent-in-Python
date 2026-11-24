@@ -3,6 +3,8 @@ import os  # Permite acceder a las variables de entorno.
 
 from dotenv import load_dotenv  # Carga variables definidas en el archivo .env.
 from openai import OpenAI  # Proporciona el cliente para llamar a la API.
+from call_function import available_functions, call_function  # Importa las herramientas y su ejecutor.
+from prompts import system_prompt  # Importa las instrucciones que se enviarán al modelo.
 
 
 def main() -> None:  # Punto de entrada con la lógica principal del chatbot.
@@ -20,7 +22,8 @@ def main() -> None:  # Punto de entrada con la lógica principal del chatbot.
         )
 
     messages = [
-    {"role": "user", "content": args.user_prompt},
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": args.user_prompt},
     ]
 
     client = OpenAI(  # Crea el cliente del SDK configurado para OpenRouter.
@@ -30,6 +33,8 @@ def main() -> None:  # Punto de entrada con la lógica principal del chatbot.
     response = client.chat.completions.create(  # Envía el mensaje y recibe la respuesta.
         model="openrouter/free",  # Selecciona el modelo o ruta gratuita de OpenRouter.
         messages=messages,  # Contiene los mensajes que forman la conversación.
+        tools=available_functions,  # Informa al modelo qué funciones puede solicitar.
+        temperature=0,  # Reduce la variación para hacer la respuesta más consistente.
     )
     
     if response.usage is None:  # Comprueba que la API haya devuelto el consumo de tokens.
@@ -39,7 +44,17 @@ def main() -> None:  # Punto de entrada con la lógica principal del chatbot.
         print(f"User prompt: {args.user_prompt}")  # Muestra el texto ingresado por el usuario.
         print(f"Prompt tokens: {response.usage.prompt_tokens}")  # Muestra los tokens usados en la entrada.
         print(f"Response tokens: {response.usage.completion_tokens}")  # Muestra los tokens generados en la respuesta.
-    print(response.choices[0].message.content)  # Muestra el texto de la primera respuesta del modelo.
+
+    message = response.choices[0].message  # Obtiene el mensaje que generó el modelo.
+    if message.tool_calls:  # Comprueba si el modelo solicitó usar alguna herramienta.
+        for tool_call in message.tool_calls:  # Recorre cada llamada a herramienta solicitada.
+            result_message = call_function(tool_call, args.verbose)  # Ejecuta la función solicitada y obtiene su mensaje de resultado.
+            if not result_message["content"]:  # Verifica que la función haya devuelto contenido.
+                raise RuntimeError("La función no devolvió contenido.")
+            if args.verbose:  # Muestra el resultado solo en modo detallado.
+                print(f"-> {result_message['content']}")
+    else:
+        print(message.content)  # Muestra el texto si el modelo no solicitó herramientas.
 
 
 if __name__ == "__main__":  # Comprueba si este archivo se ejecutó directamente.
