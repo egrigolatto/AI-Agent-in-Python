@@ -10,3 +10,12 @@ wheels/
 .venv
 venv
 .env
+
+# Agent runtime data
+.sessions/
+
+# Test tooling
+.pytest_cache/
+
+/docs
+TASKS.md

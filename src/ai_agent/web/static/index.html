@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ai-agent — Web</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <h1>🤖 ai-agent <span class="version">Web</span></h1>
+    <form id="session-form" autocomplete="off">
+      <label>Proveedor
+        <select id="provider">
+          <option value="openrouter">OpenRouter</option>
+          <option value="ollama">Ollama (local)</option>
+          <option value="openai">OpenAI</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </label>
+      <label>Modelo <input id="model" placeholder="default del proveedor"></label>
+      <label>Base URL <input id="base-url" placeholder="solo proveedor custom"></label>
+      <label>Workdir <input id="workdir" value="./calculator"></label>
+      <button type="submit" id="connect">Conectar</button>
+    </form>
+    <div id="status" class="status">Sin sesión. Elegí un proveedor y conectá para empezar.</div>
+  </header>
+
+  <main id="chat" aria-live="polite"></main>
+
+  <footer>
+    <form id="chat-form" autocomplete="off">
+      <input id="prompt" placeholder="Mensaje para el agente…" disabled>
+      <button id="send" disabled>Enviar</button>
+    </form>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
